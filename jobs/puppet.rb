@@ -21,22 +21,22 @@ SCHEDULER.every '30s', :first_in => 0, allow_overlapping: false do |puppet|
   @pending = 0
   @eventtext = ''
   
-  nodes = JSON.parse(Net::HTTP.get_response(URI.parse('http://localhost:18080/v3/nodes/')).body)
+  nodes = JSON.parse(Net::HTTP.get_response(URI.parse('http://localhost:8080/v3/nodes/')).body)
 
 
   numberofhosts = JSON.parse(
                     Net::HTTP.get_response(
-                      URI.parse('http://localhost:18080/v3/metrics/mbean/com.puppetlabs.puppetdb.query.population:type=default,name=num-nodes')).body)["Value"]
+                      URI.parse('http://localhost:8080/v3/metrics/mbean/com.puppetlabs.puppetdb.query.population:type=default,name=num-nodes')).body)["Value"]
 
 
   numberofresources = JSON.parse(
                         Net::HTTP.get_response(
-                          URI.parse('http://localhost:18080/v3/metrics/mbean/com.puppetlabs.puppetdb.query.population:type=default,name=num-resources')).body)["Value"]
+                          URI.parse('http://localhost:8080/v3/metrics/mbean/com.puppetlabs.puppetdb.query.population:type=default,name=num-resources')).body)["Value"]
 
 
   avgresources  = JSON.parse(
                     Net::HTTP.get_response(
-                      URI.parse('http://localhost:18080/v3/metrics/mbean/com.puppetlabs.puppetdb.query.population:type=default,name=avg-resources-per-node')).body)["Value"].round
+                      URI.parse('http://localhost:8080/v3/metrics/mbean/com.puppetlabs.puppetdb.query.population:type=default,name=avg-resources-per-node')).body)["Value"].round
 
   
   last_manhosts = numberofhosts
@@ -44,7 +44,7 @@ SCHEDULER.every '30s', :first_in => 0, allow_overlapping: false do |puppet|
   last_avgresources = avgresources
                       
   nodes.each do |node|
-    uri = URI.parse('http://localhost:18080/v3/event-counts/')
+    uri = URI.parse('http://localhost:8080/v3/event-counts/')
     uri.query = URI.encode_www_form(:query => %Q'["and",["=", "certname", "#{node['name']}"],["=", "latest-report?", "true"]]', :'summarize-by' => 'certname', :'count-by' => 'resource')
     #uri.query = URI.encode_www_form(:query => %Q'["and",["=", "certname", "#{node['name']}"],["<", "timestamp", "#{ftime_now}"],[">", "timestamp", "#{ftime_past}"],["=", "latest-report?", "true"]]', :'summarize-by' => 'certname', :'count-by' => 'resource')
                                    
